@@ -9,7 +9,7 @@ ultimo_estado = {
     "lon": 0.0
 }
 
-# Variable para almacenar el último evento (por ejemplo: bloquear bomba)
+# Nuevo: variable para eventos de desactivar bomba
 ultimo_evento = {
     "accion": "",
     "mensaje": ""
@@ -27,27 +27,18 @@ def datos():
     else:  # GET
         return jsonify(ultimo_estado)
 
-@app.route('/bloquear_bomba', methods=['POST'])
-def bloquear_bomba():
+@app.route('/desactivar_bomba', methods=['POST'])
+def desactivar_bomba():
     global ultimo_evento
     data = request.get_json()
-    print("Solicitud de BLOQUEAR BOMBA:", data)
+    print("Solicitud de DESACTIVAR BOMBA:", data)
     ultimo_evento = {
-        "accion": "bloquear_bomba",
+        "accion": "desactivar_bomba",
         "mensaje": "Recibido desde App2"
     }
-    return jsonify({"status": "ok", "msg": "Bomba bloqueada"})
-
-@app.route('/evento', methods=['GET', 'POST'])
-def evento():
-    global ultimo_evento
-    if request.method == 'GET':
-        evento = ultimo_evento.copy()
-        ultimo_evento = {"accion": "", "mensaje": ""}
-        return jsonify(evento)
-    else:
-        ultimo_evento = {"accion": "", "mensaje": ""}
-        return jsonify({"status": "reseteado"})
+    # Aquí puedes poner tu lógica para desactivar la bomba, enviar señal, etc.
+    return jsonify({"status": "ok", "msg": "Bomba desactivada"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
