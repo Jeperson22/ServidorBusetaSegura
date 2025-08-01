@@ -20,11 +20,12 @@ def datos():
     global ultimo_estado
     if request.method == 'POST':
         data = request.get_json()
-        # Espera que la app mande {"estado_puertas": "...", "lat": ..., "lon": ...}
+        print("POST /datos recibido:", data)   # <-- Debug: ver qué llega desde el ESP32 o la app
         if data:
             ultimo_estado = data
         return 'OK'
     else:  # GET
+        print("GET /datos enviado:", ultimo_estado)  # <-- Debug: ver qué se está enviando a la app
         return jsonify(ultimo_estado)
 
 @app.route('/bloquear_bomba', methods=['POST'])
@@ -50,4 +51,5 @@ def evento():
         return jsonify({"status": "reseteado"})
 
 if __name__ == '__main__':
+    print("Servidor iniciado en http://0.0.0.0:5000")
     app.run(host='0.0.0.0', port=5000, debug=True)
