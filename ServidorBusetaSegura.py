@@ -2,14 +2,11 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Variable global para almacenar último estado
 ultimo_estado = {
     "estado_puertas": "",
     "lat": 0.0,
     "lon": 0.0
 }
-
-# Nuevo: variable para eventos de desactivar bomba
 ultimo_evento = {
     "accion": "",
     "mensaje": ""
@@ -24,7 +21,11 @@ def datos():
             ultimo_estado = data
         return 'OK'
     else:  # GET
-        estado_bomba = "BLOQUEADA" if ultimo_evento.get("accion") == "desactivar_bomba" else "ACTIVA"
+        estado_bomba = ("DESACTIVADA"
+                        if ultimo_evento["accion"] == "desactivar_bomba"
+                        else "ACTIVADA"
+                        if ultimo_evento["accion"] == "activar_bomba"
+                        else "DESCONOCIDA")
         return jsonify({
             **ultimo_estado,
             "estado_bomba": estado_bomba,
@@ -36,11 +37,22 @@ def desactivar_bomba():
     global ultimo_evento
     data = request.get_json()
     print("Solicitud de DESACTIVAR BOMBA:", data)
-    ultimo_evento = {
-        "accion": "desactivar_bomba",
-        "mensaje": "Recibido desde App2"
-    }
+    ultimo_evento = {"accion": "desactivar_bomba", "mensaje": "Recibido desde App2"}
     return jsonify({"status": "ok", "msg": "Bomba desactivada"})
+
+@app.route('/activar_bomba', methods=['POST'])
+def activar_bomba():
+    global ultimo_evento
+    data = request.get_json()
+    print("Solicitud de ACTIVAR BOMBA:", data)
+    ultimo_evento = {"accion": "activar_bomba", "mensaje": "Recibido desde App2"}
+    return jsonify({"status": "ok", "msg": "Bomba activada"})
+
+# Nueva ruta para /evento si la quieres separar
+@app.route('/evento', methods=['GET'])
+def evento():
+    global ultimo_evento
+    return jsonify(ultimo_evento)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
