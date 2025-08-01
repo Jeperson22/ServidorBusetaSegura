@@ -17,15 +17,19 @@ ultimo_evento = {
 
 @app.route('/datos', methods=['POST', 'GET'])
 def datos():
-    global ultimo_estado
+    global ultimo_estado, ultimo_evento
     if request.method == 'POST':
         data = request.get_json()
-        # Espera que la app mande {"estado_puertas": "...", "lat": ..., "lon": ...}
         if data:
             ultimo_estado = data
         return 'OK'
     else:  # GET
-        return jsonify(ultimo_estado)
+        estado_bomba = "BLOQUEADA" if ultimo_evento.get("accion") == "desactivar_bomba" else "ACTIVA"
+        return jsonify({
+            **ultimo_estado,
+            "estado_bomba": estado_bomba,
+            "evento_bomba": ultimo_evento
+        })
 
 @app.route('/desactivar_bomba', methods=['POST'])
 def desactivar_bomba():
@@ -36,9 +40,7 @@ def desactivar_bomba():
         "accion": "desactivar_bomba",
         "mensaje": "Recibido desde App2"
     }
-    # Aquí puedes poner tu lógica para desactivar la bomba, enviar señal, etc.
     return jsonify({"status": "ok", "msg": "Bomba desactivada"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
